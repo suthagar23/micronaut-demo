@@ -1,12 +1,12 @@
 package example.micronaut;
 
-import io.micronaut.http.HttpStatus;
-import io.micronaut.http.client.RxHttpClient;
 import io.micronaut.runtime.server.EmbeddedServer;
 import io.micronaut.test.annotation.MicronautTest;
+import io.micronaut.http.client.HttpClient;
+import io.micronaut.http.HttpRequest;
+import io.micronaut.context.ApplicationContext;
 
 import org.junit.jupiter.api.Test;
-
 import javax.inject.Inject;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -15,12 +15,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WelcomeControllerTest {
 
     @Inject
-    EmbeddedServer embeddedServer;
+    static EmbeddedServer embeddedServer;
+    @Inject
+    static HttpClient client;
 
     @Test
-    public void testIndex() throws Exception {
-        try(RxHttpClient client = embeddedServer.getApplicationContext().createBean(RxHttpClient.class, embeddedServer.getURL())) {
-            assertEquals(HttpStatus.OK, client.toBlocking().exchange("/welcome").status());
-        }
+    public void shouldReturnHello() {
+        embeddedServer = ApplicationContext.run(EmbeddedServer.class);
+        client = HttpClient.create(this.embeddedServer.getURL());
+
+        String response = client.toBlocking()
+                .retrieve(HttpRequest.GET("/welcome/Suthagar"));
+        assertEquals(response, "Hello Suthagar");
+
+        embeddedServer.stop();
+        client.close();
     }
 }
+
