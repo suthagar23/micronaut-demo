@@ -2,4 +2,4 @@ micronaut:
   application:
     name: examples
     cors:
-      enabled: false
+      enabled: true
